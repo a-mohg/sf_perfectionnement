@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\WriterRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -28,9 +30,14 @@ class Writer
     private $firstname;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Article::class, inversedBy="writers")
+     * @ORM\OneToMany(targetEntity=Article::class, mappedBy="writer")
      */
-    private $writers;
+    private $articles;
+
+    public function __construct()
+    {
+        $this->articles = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -61,14 +68,32 @@ class Writer
         return $this;
     }
 
-    public function getWriters(): ?Article
+    /**
+     * @return Collection|Article[]
+     */
+    public function getArticles(): Collection
     {
-        return $this->writers;
+        return $this->articles;
     }
 
-    public function setWriters(?Article $writers): self
+    public function addArticle(Article $article): self
     {
-        $this->writers = $writers;
+        if (!$this->articles->contains($article)) {
+            $this->articles[] = $article;
+            $article->setWriter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArticle(Article $article): self
+    {
+        if ($this->articles->removeElement($article)) {
+            // set the owning side to null (unless already changed)
+            if ($article->getWriter() === $this) {
+                $article->setWriter(null);
+            }
+        }
 
         return $this;
     }

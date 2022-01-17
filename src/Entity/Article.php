@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ArticleRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -40,20 +38,14 @@ class Article
     private $date;
 
     /**
-     * @ORM\OneToMany(targetEntity=Category::class, mappedBy="category")
+     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="articles")
      */
-    private $categories;
+    private $category;
 
     /**
-     * @ORM\OneToMany(targetEntity=Writer::class, mappedBy="writers")
+     * @ORM\ManyToOne(targetEntity=Writer::class, inversedBy="articles")
      */
-    private $writers;
-
-    public function __construct()
-    {
-        $this->categories = new ArrayCollection();
-        $this->writers = new ArrayCollection();
-    }
+    private $writer;
 
     public function getId(): ?int
     {
@@ -108,62 +100,26 @@ class Article
         return $this;
     }
 
-    /**
-     * @return Collection|Category[]
-     */
-    public function getCategories(): Collection
+    public function getCategory(): ?Category
     {
-        return $this->categories;
+        return $this->category;
     }
 
-    public function addCategory(Category $category): self
+    public function setCategory(?Category $category): self
     {
-        if (!$this->categories->contains($category)) {
-            $this->categories[] = $category;
-            $category->setCategory($this);
-        }
+        $this->category = $category;
 
         return $this;
     }
 
-    public function removeCategory(Category $category): self
+    public function getWriter(): ?Writer
     {
-        if ($this->categories->removeElement($category)) {
-            // set the owning side to null (unless already changed)
-            if ($category->getCategory() === $this) {
-                $category->setCategory(null);
-            }
-        }
-
-        return $this;
+        return $this->writer;
     }
 
-    /**
-     * @return Collection|Writer[]
-     */
-    public function getWriters(): Collection
+    public function setWriter(?Writer $writer): self
     {
-        return $this->writers;
-    }
-
-    public function addWriter(Writer $writer): self
-    {
-        if (!$this->writers->contains($writer)) {
-            $this->writers[] = $writer;
-            $writer->setWriters($this);
-        }
-
-        return $this;
-    }
-
-    public function removeWriter(Writer $writer): self
-    {
-        if ($this->writers->removeElement($writer)) {
-            // set the owning side to null (unless already changed)
-            if ($writer->getWriters() === $this) {
-                $writer->setWriters(null);
-            }
-        }
+        $this->writer = $writer;
 
         return $this;
     }
